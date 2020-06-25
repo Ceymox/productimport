@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @copyright 2020 Ceymox. All rights reserved
+ * @author Anzz
+ *
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="admin">
+        <route id="ceymox_productimport" frontName="ceymox_productimport">
+            <module name="Ceymox_ProductImport" />
+        </route>
+    </router>
+</config>
