@@ -11,6 +11,8 @@ use Magento\Backend\App\Action;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Filesystem\Io\File;
+use Magento\MediaStorage\Model\File\UploaderFactory;
+use Magento\Framework\Filesystem;
 
 class Upload extends Action
 {
@@ -18,29 +20,28 @@ class Upload extends Action
     private $jsonHelper;
     /** @var File */
     private $file;
+    private $uploaderFactory;
 
     public function __construct(
         Action\Context $context,
-        DirectoryList $directoryList,
-        JsonHelper $jsonHelper,
-        File $file
+        Filesystem $filesystem,
+        UploaderFactory $uploaderFactory,
+        JsonHelper $jsonHelper
     ) {
+        $this->_uploaderFactory = $uploaderFactory;
+        $this->_varDirectory = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
         $this->_jsonHelper = $jsonHelper;
-        $this->_directoryList = $directoryList;
-        $this->file = $file;
+        
         parent::__construct($context);
     }
 
     public function execute()
     {
         try {
-            $tmpDir = $this->_directoryList->getPath('tmp');
-            $ext = $this->file->getPathInfo('import_products_list.csv')['extension'];
-            move_uploaded_file(
-                $this->getRequest()
-                ->getFiles("csv_uploader")['tmp_name'],
-                $tmpDir . "/datasheet-productsList." . $ext
-            );
+            $uploader = $this->_uploaderFactory->create(['fileId' => 'csv_uploader']);
+            $workingDir = $this->_varDirectory->getAbsolutePath('tmp/');
+            $result = $uploader->save($workingDir, 'datasheet-productsList.csv');
+           
             return $this->jsonResponse(['error' => "File was successfully uploaded! You can import data."]);
         } catch (\Exception $e) {
             return $this->jsonResponse(['error' => $e->getMessage()]);

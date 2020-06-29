@@ -16,6 +16,7 @@ use Magento\Catalog\Api\Data\CategoryProductLinkInterface;
 use Magento\Catalog\Api\CategoryLinkRepositoryInterface;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Catalog\Model\Product;
+use Magento\Framework\Filesystem\Driver\File;
 
 class Import extends Action
 {
@@ -57,7 +58,8 @@ class Import extends Action
         CategoryLinkManagementInterface $categoryLinkManagement,
         ProductRepository $productRepository,
         Product $product,
-        CategoryLinkRepositoryInterface $categoryLinkRepository
+        CategoryLinkRepositoryInterface $categoryLinkRepository,
+        File $fileDriver
     ) {
         $this->csv                  = $csv;
         $this->directoryList        = $directoryList;
@@ -65,6 +67,7 @@ class Import extends Action
         $this->categoryLinkRepository = $categoryLinkRepository;
         $this->_productRepository = $productRepository;
         $this->product = $product;
+        $this->fileDriver = $fileDriver;
         parent::__construct($context);
     }
 
@@ -79,41 +82,59 @@ class Import extends Action
         $resultRedirect = $this->resultRedirectFactory->create();
         $tmpDir = $this->directoryList->getPath('tmp');
         $file = $tmpDir . '/datasheet-productsList.csv';
-        $csv = $this->csv;
-        $csv->setDelimiter(',');
-        $skus = $csv->getData($file);
-        $postdata = $this->getRequest()->getPostValue();
-        $action = $postdata['action'];
-        $categoryIds = $postdata['catalog'];
-        $errors = $success = [];
-        foreach ($categoryIds as $categoryId) {
-            foreach ($skus as $sku) {
-                $sku = $sku[0];
-                if ($sku!="sku") {
-                    if ($action == 1) {
-                        if ($this->insertProducts($sku, $categoryIds)) {
-                            $success[] = $sku;
+        
+        if ($this->checkFileExists($file)) {
+            $csv = $this->csv;
+            $csv->setDelimiter(',');
+            $skus = $csv->getData($file);
+            $postdata = $this->getRequest()->getPostValue();
+            $action = $postdata['action'];
+            $categoryIds = $postdata['catalog'];
+            $errors = $success = [];
+        
+            foreach ($categoryIds as $categoryId) {
+                foreach ($skus as $sku) {
+                    $sku = $sku[0];
+                    if ($sku!="sku") {
+                        if ($action == 1) {
+                            if ($this->insertProducts($sku, $categoryIds)) {
+                                $success[] = $sku;
+                            } else {
+                                $errors[] = $sku;
+                            }
+                                $actionmsg = __('Inserted to the selected categories');
                         } else {
-                            $errors[] = $sku;
+                            if ($this->removeProducts($categoryId, $sku)) {
+                                $success[] = $sku;
+                            } else {
+                                $errors[] = $sku;
+                            }
+                                $actionmsg = __('Removed from the selected categories');
                         }
-                            $actionmsg = __('Inserted to the selected categories');
-                    } else {
-                        if ($this->removeProducts($categoryId, $sku)) {
-                            $success[] = $sku;
-                        } else {
-                            $errors[] = $sku;
-                        }
-                            $actionmsg = __('Removed from the selected categories');
                     }
                 }
             }
+
+            $success = array_unique($success);
+            $errors = array_unique($errors);
+            $this->fileDriver->deleteFile($file);
+            $this->messages($success, $errors, $actionmsg);
+        } else {
+            $errormsg = __('No valid file is uploaded');
+            $this->messageManager->addError($errormsg);
         }
-        $success = array_unique($success);
-        $errors = array_unique($errors);
-        $this->messages($success, $errors, $actionmsg);
         return $resultRedirect->setPath('ceymox_productimport/import/index');
     }
 
+    /**
+     * Check file is exist or not at specific location
+     */
+    public function checkFileExists($file)
+    {
+        if ($this->fileDriver->isExists($file)) {
+            return true;
+        }
+    }
     /**
      * Checking existance of products in csv
      *
@@ -177,7 +198,7 @@ class Import extends Action
             $error = __('Some products in the csv are not existing : %1', implode(", ", $errors));
             return $this->messageManager->addSuccess($message)->addError($error);
         } else {
-            $message = __('All Products in the csv are successfully', $actionmsg);
+            $message = __('All Products in the csv are successfully %1', $actionmsg);
             return $this->messageManager->addSuccess($message);
         }
     }
