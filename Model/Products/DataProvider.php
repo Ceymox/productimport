@@ -8,7 +8,7 @@
 namespace Ceymox\ProductImport\Model\Products;
 
 use Magento\Ui\DataProvider\AbstractDataProvider;
-use Ceymox\ProductImport\Model\ResourceModel\Products\CollectionFactory;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 
 class DataProvider extends AbstractDataProvider
 {
@@ -60,10 +60,6 @@ class DataProvider extends AbstractDataProvider
     {
         if (isset($this->loadedData)) {
             return $this->loadedData;
-        }
-        $items = $this->collection->getItems();
-        foreach ($items as $item) {
-            $this->loadedData[$item->getId()] = $item->getData();
         }
         return $this->loadedData;
     }

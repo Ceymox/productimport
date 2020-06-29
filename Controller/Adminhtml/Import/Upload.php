@@ -9,24 +9,31 @@ namespace Ceymox\ProductImport\Controller\Adminhtml\Import;
 
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Json\Helper\Data;
 use Magento\Framework\Filesystem\Io\File;
 use Magento\MediaStorage\Model\File\UploaderFactory;
 use Magento\Framework\Filesystem;
 
 class Upload extends Action
 {
-    private $directoryList;
+    /**
+     * @var Data
+     */
     private $jsonHelper;
-    /** @var File */
-    private $file;
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+    /**
+     * @var UploaderFactory
+     */
     private $uploaderFactory;
 
     public function __construct(
         Action\Context $context,
         Filesystem $filesystem,
         UploaderFactory $uploaderFactory,
-        JsonHelper $jsonHelper
+        Data $jsonHelper
     ) {
         $this->_uploaderFactory = $uploaderFactory;
         $this->_varDirectory = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
