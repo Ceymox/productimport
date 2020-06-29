@@ -96,14 +96,14 @@ class Import extends Action
                         } else {
                             $errors[] = $sku;
                         }
-                            $actionmsg = "Inserted to the selected categories";
+                            $actionmsg = __('Inserted to the selected categories');
                     } else {
                         if ($this->removeProducts($categoryId, $sku)) {
                             $success[] = $sku;
                         } else {
                             $errors[] = $sku;
                         }
-                            $actionmsg = "Removed from the selected categories";
+                            $actionmsg = __('Removed from the selected categories');
                     }
                 }
             }
@@ -170,14 +170,14 @@ class Import extends Action
     {
         
         if ($success == null) {
-            $message = "Sorry, No Products in the csv are Existing. Please check the sku's before import";
+            $message = __('Sorry, No Products in the csv are Existing. Please check the skus before import');
             return $this->messageManager->addError($message);
         } elseif ($errors!=null) {
-            $message = "All existing Products are $actionmsg";
-            $error ="Some products in the csv are not existing : ".implode(", ", $errors);
+            $message = __('All existing Products are %1', $actionmsg);
+            $error = __('Some products in the csv are not existing : %1', implode(", ", $errors));
             return $this->messageManager->addSuccess($message)->addError($error);
         } else {
-            $message = "All Products in the csv are successfully $actionmsg";
+            $message = __('All Products in the csv are successfully', $actionmsg);
             return $this->messageManager->addSuccess($message);
         }
     }
