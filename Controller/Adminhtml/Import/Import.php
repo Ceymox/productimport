@@ -91,26 +91,26 @@ class Import extends Action
             $action = $postdata['action'];
             $categoryIds = $postdata['catalog'];
             $errors = $success = [];
-        
+            if ($skus[0][0] == 'sku') {
+                array_shift($skus);
+            }
             foreach ($categoryIds as $categoryId) {
                 foreach ($skus as $sku) {
                     $sku = $sku[0];
-                    if ($sku!="sku") {
-                        if ($action == 1) {
-                            if ($this->insertProducts($sku, $categoryIds)) {
-                                $success[] = $sku;
-                            } else {
-                                $errors[] = $sku;
-                            }
-                                $actionmsg = __('Inserted to the selected categories');
+                    if ($action == 1) {
+                        if ($this->insertProducts($sku, $categoryIds)) {
+                            $success[] = $sku;
                         } else {
-                            if ($this->removeProducts($categoryId, $sku)) {
-                                $success[] = $sku;
-                            } else {
-                                $errors[] = $sku;
-                            }
-                                $actionmsg = __('Removed from the selected categories');
+                            $errors[] = $sku;
                         }
+                            $actionmsg = __('Inserted to the selected categories');
+                    } else {
+                        if ($this->removeProducts($categoryId, $sku)) {
+                            $success[] = $sku;
+                        } else {
+                            $errors[] = $sku;
+                        }
+                            $actionmsg = __('Removed from the selected categories');
                     }
                 }
             }
