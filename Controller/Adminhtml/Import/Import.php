@@ -65,7 +65,7 @@ class Import extends Action
         $this->directoryList        = $directoryList;
         $this->categoryLinkManagement = $categoryLinkManagement;
         $this->categoryLinkRepository = $categoryLinkRepository;
-        $this->_productRepository = $productRepository;
+        $this->productRepository = $productRepository;
         $this->product = $product;
         $this->fileDriver = $fileDriver;
         parent::__construct($context);
@@ -90,7 +90,8 @@ class Import extends Action
             $postdata = $this->getRequest()->getPostValue();
             $action = $postdata['action'];
             $categoryIds = $postdata['catalog'];
-            $errors = $success = [];
+            $errors = [];
+            $success = [];
             if ($skus[0][0] == 'sku') {
                 array_shift($skus);
             }
@@ -156,9 +157,9 @@ class Import extends Action
     public function insertProducts($sku, $categoryIds)
     {
         if ($this->productExist($sku)) {
-            $pdct = $this->_productRepository->get($sku);
-            $pdctcategories = $pdct->getCategoryIds();
-            $categoryIds = array_unique(array_merge($pdctcategories, $categoryIds), SORT_REGULAR);
+            $skuProduct = $this->productRepository->get($sku);
+            $skuProductCategories = $skuProduct->getCategoryIds();
+            $categoryIds = array_unique(array_merge($skuProductCategories, $categoryIds), SORT_REGULAR);
             $this->categoryLinkManagement->assignProductToCategories($sku, $categoryIds);
             return true;
         }
@@ -172,9 +173,9 @@ class Import extends Action
     public function removeProducts($categoryId, $sku)
     {
         if ($this->productExist($sku)) {
-            $pdct = $this->_productRepository->get($sku);
-            $pdctcategories = $pdct->getCategoryIds();
-            $exist = in_array($categoryId, $pdctcategories);
+            $skuProduct = $this->productRepository->get($sku);
+            $skuProductCategories = $skuProduct->getCategoryIds();
+            $exist = in_array($categoryId, $skuProductCategories);
             if ($exist) {
                 $this->categoryLinkRepository->deleteByIds($categoryId, $sku);
             }

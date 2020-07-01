@@ -35,9 +35,9 @@ class Upload extends Action
         UploaderFactory $uploaderFactory,
         Data $jsonHelper
     ) {
-        $this->_uploaderFactory = $uploaderFactory;
-        $this->_varDirectory = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
-        $this->_jsonHelper = $jsonHelper;
+        $this->uploaderFactory = $uploaderFactory;
+        $this->varDirectory = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+        $this->jsonHelper = $jsonHelper;
         
         parent::__construct($context);
     }
@@ -45,8 +45,8 @@ class Upload extends Action
     public function execute()
     {
         try {
-            $uploader = $this->_uploaderFactory->create(['fileId' => 'csv_uploader']);
-            $workingDir = $this->_varDirectory->getAbsolutePath('tmp/');
+            $uploader = $this->uploaderFactory->create(['fileId' => 'csv_uploader']);
+            $workingDir = $this->varDirectory->getAbsolutePath('tmp/');
             $result = $uploader->save($workingDir, 'datasheet-productsList.csv');
            
             return $this->jsonResponse(['error' => "File was successfully uploaded! You can import data."]);
@@ -57,6 +57,6 @@ class Upload extends Action
 
     public function jsonResponse($response = '')
     {
-        return $this->getResponse()->representJson($this->_jsonHelper->jsonEncode($response));
+        return $this->getResponse()->representJson($this->jsonHelper->jsonEncode($response));
     }
 }
