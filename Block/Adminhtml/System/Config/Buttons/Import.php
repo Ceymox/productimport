@@ -11,6 +11,7 @@ use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
  * Class Import
+ * Button For Import Action
  */
 class Import extends GenericButton implements ButtonProviderInterface
 {

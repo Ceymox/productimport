@@ -20,7 +20,6 @@
         </item>
         <item name="template" xsi:type="string">templates/form/collapsible</item>
         <item name="buttons" xsi:type="array">
-            <item name="back" xsi:type="string">Ceymox\ProductImport\Block\Adminhtml\System\Config\Buttons\BackButton</item>
             <item name="save" xsi:type="string">Ceymox\ProductImport\Block\Adminhtml\System\Config\Buttons\Import</item>
         </item>
     </argument>

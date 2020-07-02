@@ -12,6 +12,7 @@ use Magento\Framework\Registry;
 
 /**
  * Class GenericButton
+ * Base For All Buttons
  */
 class GenericButton
 {
