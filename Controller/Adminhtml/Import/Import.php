@@ -136,6 +136,7 @@ class Import extends Action
             return true;
         }
     }
+    
     /**
      * Checking existance of products in csv
      *
